@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCE_FILES
     example/intersection.cpp
-    src/accelerator/box.cpp
+    src/accel/box.cpp
     src/geometry/triangle.cpp
     src/geometry/geometry.cpp
     src/tensor/vec3.cpp
