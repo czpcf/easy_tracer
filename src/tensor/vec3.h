@@ -41,5 +41,8 @@ public:
 
     /// @brief reflection via b
     Vec3 Reflect(const Vec3&b);
+
+    /// @brief rotate by b with theta radians, counter-clockwise
+    Vec3 Rotate(const Vec3&b, float theta);
 };
 #endif

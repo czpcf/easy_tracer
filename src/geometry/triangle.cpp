@@ -3,6 +3,7 @@
 #include <cmath>
 #include "../const.h"
 #include "triangle.h"
+
 Triangle::Triangle() {
 }
 
@@ -27,7 +28,7 @@ Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec3 norm_1, Vec3 norm
     /// counter-clockwise: p1 -> p2 -> p3
     p1 = point1, p2 = point2, p3 = point3;
     uv1 = uv2 = uv3 = Vec2(0, 0);
-    norm1 = norm_1, norm2 = norm_2, norm3 = norm_3;
+    norm1 = norm_1.Norm(), norm2 = norm_2.Norm(), norm3 = norm_3.Norm();
     norm = ((p2 - p1) * (p3 - p1)).Norm();
 }
 
@@ -35,7 +36,7 @@ Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec2 uv_1, Vec2 uv_2, 
     /// counter-clockwise: p1 -> p2 -> p3
     p1 = point1, p2 = point2, p3 = point3;
     uv1 = uv_1, uv2 = uv_2, uv3 = uv_3;
-    norm1 = norm_1, norm2 = norm_2, norm3 = norm_3;
+    norm1 = norm_1.Norm(), norm2 = norm_2.Norm(), norm3 = norm_3.Norm();
     norm = ((p2 - p1) * (p3 - p1)).Norm();
 }
 
@@ -122,9 +123,9 @@ void Triangle::Trans(Mat3&T) {
     p1 = T.Map(p1);
     p2 = T.Map(p2);
     p3 = T.Map(p3);
-    norm1 = T.Map(norm1);
-    norm2 = T.Map(norm2);
-    norm3 = T.Map(norm3);
+    norm1 = T.MapA(norm1); // be careful
+    norm2 = T.MapA(norm2);
+    norm3 = T.MapA(norm3);
     norm = ((p2 - p1) * (p3 - p1)).Norm();
 }
 

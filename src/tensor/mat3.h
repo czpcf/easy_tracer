@@ -1,5 +1,6 @@
 /*
 represents f(x) = Ax + b from R^3 to R^3,
+where A is orthogonal,
 x, y, z axis must be scaled with the same value
 */
 #include "vec3.h"
@@ -41,6 +42,9 @@ public:
 
     /// @brief return f(a)
     Vec3 Map(const Vec3&a);
+
+    /// @brief return Ax
+    Vec3 MapA(const Vec3&x);
 
     /// @brief return det A
     float Det();

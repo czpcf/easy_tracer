@@ -110,6 +110,12 @@ Vec3 Mat3::Map(const Vec3&a) {
                 this->a[6] * a.x + this->a[7] * a.y + this->a[8] * a.z + this->b[2]);
 }
 
+Vec3 Mat3::MapA(const Vec3&a) {
+    return Vec3(this->a[0] * a.x + this->a[1] * a.y + this->a[2] * a.z,
+                this->a[3] * a.x + this->a[4] * a.y + this->a[5] * a.z,
+                this->a[6] * a.x + this->a[7] * a.y + this->a[8] * a.z);
+}
+
 float Mat3::Det() {
     /// 0 1 2
     /// 3 4 5

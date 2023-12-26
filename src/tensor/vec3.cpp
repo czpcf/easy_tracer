@@ -99,3 +99,23 @@ Vec3 Vec3::Reflect(const Vec3&b) {
                (ny * nx * 2) * x + (ny * ny * 2 - 1) * y + (ny * nz * 2) * z,
                (nz * nx * 2) * x + (nz * ny * 2) * y + (nz * nz * 2 - 1) * z);
 }
+
+Vec3 Vec3::Rotate(const Vec3&b, float theta) {
+    // copied from mat3.cpp
+    float s = sqrt(x * x + y * y + z * z);
+    float nx = x / s;
+    float ny = y / s;
+    float nz = z / s;
+    float a0 = cos(theta) + nx * nx * (1.0 - cos(theta));
+    float a1 = nx * ny * (1.0 - cos(theta)) - nz * sin(theta);
+    float a2 = nx * nz * (1.0 - cos(theta)) + ny * sin(theta);
+    float a3 = ny * nx * (1.0 - cos(theta)) + nz * sin(theta);
+    float a4 = cos(theta) + ny * ny * (1.0 - cos(theta));
+    float a5 = ny * nz * (1.0 - cos(theta)) - nx * sin(theta);
+    float a6 = nz * nx * (1.0 - cos(theta)) - ny * sin(theta);
+    float a7 = nz * ny * (1.0 - cos(theta)) + nx * sin(theta);
+    float a8 = cos(theta) + nz * nz * (1.0 - cos(theta));
+    return Vec3(a0 * b.x + a1 * b.y + a2 * b.z,
+                a3 * b.x + a4 * b.y + a5 * b.z,
+                a6 * b.x + a7 * b.y + a8 * b.z);
+}
