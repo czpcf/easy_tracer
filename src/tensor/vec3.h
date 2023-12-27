@@ -19,10 +19,16 @@ public:
     void operator/=(const float d);
 
     /// @brief return the cross product: a x b
+    Vec3 Cross(const Vec3&b);
+
+    /// @brief return the element-wise product: (a.x * b.x, a.y * b.y, a.z * b.z)
     Vec3 operator*(const Vec3&b);
 
+    /// @brief return x + y + z;
+    float Sum();
+
     /// @brief return the dot product: <a, b>
-    float operator&(const Vec3&b);
+    float Dot(const Vec3&b);
 
     /// @brief return the norm of this vector, errors will occur if the vector is 0
     Vec3 Norm();

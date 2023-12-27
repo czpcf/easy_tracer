@@ -7,12 +7,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCE_FILES
     src/accel/box.cpp
+    src/accel/accel.cpp
+    src/accel/accel_naive.cpp
+    src/accel/accel_kdtree.cpp
     src/geometry/geometry.cpp
     src/geometry/triangle.cpp
     src/geometry/sphere.cpp
+    src/tensor/vec4.cpp
     src/tensor/vec3.cpp
     src/tensor/vec2.cpp
     src/tensor/mat3.cpp
+    src/texture/texture.cpp
 )
 
 add_executable(intersection example/intersection.cpp ${SOURCE_FILES})
@@ -23,3 +28,9 @@ target_compile_options(local_coordinate PRIVATE -O3)
 
 add_executable(sphere_test example/sphere_test.cpp ${SOURCE_FILES})
 target_compile_options(sphere_test PRIVATE -O3)
+
+add_executable(accel_test example/accel_test.cpp ${SOURCE_FILES})
+target_compile_options(accel_test PRIVATE -O3)
+
+add_executable(box_test example/box_test.cpp ${SOURCE_FILES})
+target_compile_options(box_test PRIVATE -O3)

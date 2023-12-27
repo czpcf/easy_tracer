@@ -19,7 +19,7 @@
 class Geometry {
 public:
     Geometry();
-    ~Geometry();
+    virtual ~Geometry();
     /// @brief intersection with the line from point p in direction d
     /// if intersected, return <true, <local coordinate, normal>>
     /// otherwise <false, <(0, 0), (0, 0, 0)>>

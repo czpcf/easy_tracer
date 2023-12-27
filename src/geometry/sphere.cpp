@@ -12,7 +12,7 @@ Sphere::~Sphere() {
 }
 
 Sphere::Sphere(Vec3 z_axis, Vec3 x_axis, Vec3 origin, float radius) {
-    if(abs(z_axis & x_axis) > EPS) {
+    if(abs(z_axis.Dot(x_axis)) > EPS) {
         using namespace std;
         cerr << "z_axis is not orthogonal to x_axis: "
              << "(" << z_axis.x << "," << z_axis.y << "," << z_axis.z << ") and "
@@ -21,16 +21,16 @@ Sphere::Sphere(Vec3 z_axis, Vec3 x_axis, Vec3 origin, float radius) {
     }
     z = z_axis.Norm();
     x = x_axis.Norm();
-    y = z * x;
+    y = z.Cross(x);
     ori = origin;
     r = radius;
 }
 
 std::pair<bool, std::pair<Vec2, Vec3>> Sphere::Inter(Vec3 p, Vec3 d) {
     using namespace std;
-    float a = d & d;
-    float b = ((p - ori) & d) * 2;
-    float c = ((p - ori) & (p - ori)) - r * r;
+    float a = d.Dot(d);
+    float b = ((p - ori).Dot(d)) * 2;
+    float c = ((p - ori).Dot(p - ori)) - r * r;
     float del = b * b - a * c * 4;
     if(del < 0) {
         return make_pair(false, make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
@@ -44,14 +44,14 @@ std::pair<bool, std::pair<Vec2, Vec3>> Sphere::Inter(Vec3 p, Vec3 d) {
     }
     Vec3 inter = p + d * t1;
     p = inter - ori;
-    float theta = p & z;
+    float theta = p.Dot(z);
     if(theta <= -1.0 + EPS) {
         return make_pair(true, make_pair(Vec2(PI, 0.0f), inter));
     } else if(theta >= 1.0 - EPS) {
         return make_pair(true, make_pair(Vec2(0.0f, 0.0f), inter));
     }
     theta = acos(theta);
-    Vec3 proj = p - z * (p & z); // be careful
+    Vec3 proj = p - z * p.Dot(z); // be careful
     float ax = x.Angle(proj);
     float ay = y.Angle(proj);
     if(ax < PI / 2) {

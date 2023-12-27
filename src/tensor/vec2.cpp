@@ -3,6 +3,7 @@
 #include "../const.h"
 
 Vec2::Vec2() {
+    x = y = 0.0f;
 }
 
 Vec2::~Vec2() {
@@ -46,8 +47,15 @@ void Vec2::operator/=(const float d) {
     x /= d, y /= d;
 }
 
-/// return the dot product of a and b
-float Vec2::operator&(const Vec2&b) {
+Vec2 Vec2::operator*(const Vec2&b) {
+    return Vec2(x * b.x, y * b.y);
+}
+
+float Vec2::Sum() {
+    return x + y;
+}
+
+float Vec2::Dot(const Vec2&b) {
     return x * b.x + y * b.y;
 }
 

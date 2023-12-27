@@ -18,8 +18,13 @@ public:
     void operator*=(const float d);
     void operator/=(const float d);
 
-    /// @brief return the dot product: <a, b>
-    float operator&(const Vec2&b);
+    /// @brief return the element-wise product: (a.x * b.x, a.y * b.y)
+    Vec2 operator*(const Vec2&b);
+
+    /// @brief return x + y + z;
+    float Sum();
+
+    float Dot(const Vec2&b);
 
     /// @brief return the norm of this vector, errors will occur if the vector is 0
     Vec2 Norm();

@@ -3,6 +3,7 @@
 #include "../const.h"
 
 Vec3::Vec3() {
+    x = y = z = 0.0f;
 }
 
 Vec3::~Vec3() {
@@ -47,14 +48,21 @@ void Vec3::operator/=(const float d) {
 }
 
 /// return the cross product of a and b
-Vec3 Vec3::operator*(const Vec3&b) {
+Vec3 Vec3::Cross(const Vec3&b) {
     return Vec3(y * b.z - z * b.y,
                 z * b.x - x * b.z,
                 x * b.y - y * b.x);
 }
 
-/// return the dot product of a and b
-float Vec3::operator&(const Vec3&b) {
+Vec3 Vec3::operator*(const Vec3&b) {
+    return Vec3(x * b.x, y * b.y, z * b.z);
+}
+
+float Vec3::Sum() {
+    return x + y + z;
+}
+
+float Vec3::Dot(const Vec3&b) {
     return x * b.x + y * b.y + z * b.z;
 }
 

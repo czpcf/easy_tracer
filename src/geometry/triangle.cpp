@@ -14,14 +14,14 @@ Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3) {
     /// counter-clockwise: p1 -> p2 -> p3
     p1 = point1, p2 = point2, p3 = point3;
     uv1 = uv2 = uv3 = Vec2(0, 0);
-    norm1 = norm2 = norm3 = norm = ((p2 - p1) * (p3 - p1)).Norm();
+    norm1 = norm2 = norm3 = norm = ((p2 - p1).Cross(p3 - p1)).Norm();
 }
 
 Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec2 uv_1, Vec2 uv_2, Vec2 uv_3) {
     /// counter-clockwise: p1 -> p2 -> p3
     p1 = point1, p2 = point2, p3 = point3;
     uv1 = uv_1, uv2 = uv_2, uv3 = uv_3;
-    norm1 = norm2 = norm3 = norm = ((p2 - p1) * (p3 - p1)).Norm();
+    norm1 = norm2 = norm3 = norm = ((p2 - p1).Cross(p3 - p1)).Norm();
 }
 
 Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec3 norm_1, Vec3 norm_2, Vec3 norm_3) {
@@ -29,7 +29,7 @@ Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec3 norm_1, Vec3 norm
     p1 = point1, p2 = point2, p3 = point3;
     uv1 = uv2 = uv3 = Vec2(0, 0);
     norm1 = norm_1.Norm(), norm2 = norm_2.Norm(), norm3 = norm_3.Norm();
-    norm = ((p2 - p1) * (p3 - p1)).Norm();
+    norm = ((p2 - p1).Cross(p3 - p1)).Norm();
 }
 
 Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec2 uv_1, Vec2 uv_2, Vec2 uv_3, Vec3 norm_1, Vec3 norm_2, Vec3 norm_3) {
@@ -37,16 +37,16 @@ Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec2 uv_1, Vec2 uv_2, 
     p1 = point1, p2 = point2, p3 = point3;
     uv1 = uv_1, uv2 = uv_2, uv3 = uv_3;
     norm1 = norm_1.Norm(), norm2 = norm_2.Norm(), norm3 = norm_3.Norm();
-    norm = ((p2 - p1) * (p3 - p1)).Norm();
+    norm = ((p2 - p1).Cross(p3 - p1)).Norm();
 }
 
 std::pair<bool, std::pair<Vec2, Vec3>> Triangle::Inter(Vec3 p, Vec3 d) {
     using namespace std;
-    float t = d & (norm);
+    float t = d.Dot(norm);
     if(abs(t) < EPS) {
         return make_pair(false, make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
     }
-    t = ((p1 - p) & (norm)) / t;
+    t = ((p1 - p).Dot(norm)) / t;
     if(t < 0) {
         return make_pair(false, make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
     }
@@ -126,7 +126,7 @@ void Triangle::Trans(Mat3&T) {
     norm1 = T.MapA(norm1); // be careful
     norm2 = T.MapA(norm2);
     norm3 = T.MapA(norm3);
-    norm = ((p2 - p1) * (p3 - p1)).Norm();
+    norm = ((p2 - p1).Cross(p3 - p1)).Norm();
 }
 
 void Triangle::Debug() {
