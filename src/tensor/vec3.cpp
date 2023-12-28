@@ -108,6 +108,7 @@ Vec3 Vec3::Reflect(const Vec3&b) {
                (nz * nx * 2) * x + (nz * ny * 2) * y + (nz * nz * 2 - 1) * z);
 }
 
+// TODO: need faster implementation
 Vec3 Vec3::Rotate(const Vec3&b, float theta) {
     // copied from mat3.cpp
     float s = sqrt(x * x + y * y + z * z);

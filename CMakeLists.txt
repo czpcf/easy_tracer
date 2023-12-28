@@ -34,3 +34,9 @@ target_compile_options(accel_test PRIVATE -O3)
 
 add_executable(box_test example/box_test.cpp ${SOURCE_FILES})
 target_compile_options(box_test PRIVATE -O3)
+
+add_executable(texture_test example/texture_test.cpp ${SOURCE_FILES})
+target_compile_options(texture_test PRIVATE -O3)
+
+add_executable(recursive_texture example/recursive_texture.cpp ${SOURCE_FILES})
+target_compile_options(recursive_texture PRIVATE -O3)

@@ -25,6 +25,7 @@ std::pair<int, std::pair<Vec2, Vec3>> AccelNaive::Inter(Vec3 p, Vec3 d) {
             if(id == -1 || dis2 < dis) {
                 id = i;
                 dis = dis2;
+                uv = res.second.first; // dont forget to change uv
                 inter = inter2;
             }
         }

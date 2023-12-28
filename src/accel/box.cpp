@@ -1,6 +1,7 @@
 #include "box.h"
 #include "../const.h"
 #include <errno.h>
+#include <iostream>
 
 Box::Box() {
 }

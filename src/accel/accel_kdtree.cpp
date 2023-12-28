@@ -80,6 +80,7 @@ void AccelKDtree::Query(const Vec3& p, const Vec3& d, int num, float& dis, int& 
     if(num == -1) {
         return;
     }
+    using namespace std;
     if(boxes[num].Inside(p) == false) {
         float ndis = boxes[num].InterSquaredNormed(p, d);
         if(ndis >= dis) {
@@ -99,9 +100,9 @@ void AccelKDtree::Query(const Vec3& p, const Vec3& d, int num, float& dis, int& 
     if(ls[num] == -1 && rs[num] == -1) {
         return;
     }
-    if(ls[num] == -1) {
+    if(rs[num] == -1) { // be careful with your left/right sons
         Query(p, d, ls[num], dis, id, res);
-    } else if(rs[num] == -1) {
+    } else if(ls[num] == -1) {
         Query(p, d, rs[num], dis, id, res);
     } else {
         Vec3 pl = (boxes[ls[num]].GetLower() + boxes[ls[num]].GetUpper()) / 2;
