@@ -19,6 +19,13 @@ public:
     Mat3();
     ~Mat3();
     
+    /// @brief return the transform which represents a shift: 0 -> p
+    Mat3(Vec3 p);
+    
+    /// @brief return the transform which represents a counter-clockwise
+    /// rotation around the vector n with theta radians
+    Mat3(Vec3 n, float theta);
+
     /// @brief the representation of the transform f(x) = Ax + b,
     /// where A is a 3*3 matrix and b is a 3d vector
     Mat3(float array_a[9], float array_b[3]);
@@ -36,10 +43,6 @@ public:
     /// @brief return f(x) = I * x + a
     Mat3 Trans(const Vec3&a);
 
-    /// @brief return the transform which represents a counter-clockwise
-    /// rotation around the vector n with theta radians
-    Mat3 Rot(Vec3 n, float theta);
-
     /// @brief return f(a)
     Vec3 Map(const Vec3&a);
 
@@ -49,4 +52,7 @@ public:
     /// @brief return det A
     float Det();
 };
+
+/// @brief transformation that (0,0,1) -> z + p, (1,0,0) -> x + p
+Mat3 TransZXP(Vec3 z, Vec3 x, Vec3 p);
 #endif

@@ -21,7 +21,6 @@ AccelKDtree::~AccelKDtree() {
 // [l, r)
 // TODO: faster, better
 void AccelKDtree::Build(int l, int r, int& num) {
-    using namespace std;
     if(l >= r) {
         return;
     } else if(l + 1 == r) {
@@ -39,29 +38,29 @@ void AccelKDtree::Build(int l, int r, int& num) {
     var = var / (r - l) - mean * mean;
     int mid = (l + r) >> 1;
     if(var.x >= var.y && var.x >= var.z) {
-        auto cmp = [](pair<Geometry* ,int> a, pair<Geometry* ,int> b) {
+        auto cmp = [](std::pair<Geometry* ,int> a, std::pair<Geometry* ,int> b) {
             Box ba = a.first->Bound();
             Box bb = b.first->Bound();
             return ((ba.GetLower() + ba.GetUpper()) / 2).x <
                    ((bb.GetLower() + bb.GetUpper()) / 2).x;
         };
-        nth_element(aux.begin() + l, aux.begin() + mid, aux.begin() + r, cmp);
+        std::nth_element(aux.begin() + l, aux.begin() + mid, aux.begin() + r, cmp);
     } else if(var.y >= var.x && var.y >= var.z) {
-        auto cmp = [](pair<Geometry* ,int> a, pair<Geometry* ,int> b) {
+        auto cmp = [](std::pair<Geometry* ,int> a, std::pair<Geometry* ,int> b) {
             Box ba = a.first->Bound();
             Box bb = b.first->Bound();
             return ((ba.GetLower() + ba.GetUpper()) / 2).y <
                    ((bb.GetLower() + bb.GetUpper()) / 2).y;
         };
-        nth_element(aux.begin() + l, aux.begin() + mid, aux.begin() + r, cmp);
+        std::nth_element(aux.begin() + l, aux.begin() + mid, aux.begin() + r, cmp);
     } else {
-        auto cmp = [](pair<Geometry* ,int> a, pair<Geometry* ,int> b) {
+        auto cmp = [](std::pair<Geometry* ,int> a, std::pair<Geometry* ,int> b) {
             Box ba = a.first->Bound();
             Box bb = b.first->Bound();
             return ((ba.GetLower() + ba.GetUpper()) / 2).z <
                    ((bb.GetLower() + bb.GetUpper()) / 2).z;
         };
-        nth_element(aux.begin() + l, aux.begin() + mid, aux.begin() + r, cmp);
+        std::nth_element(aux.begin() + l, aux.begin() + mid, aux.begin() + r, cmp);
     }
     num = aux[mid].second; // id
     boxes[num] = aux[mid].first->Bound();
@@ -80,7 +79,6 @@ void AccelKDtree::Query(const Vec3& p, const Vec3& d, int num, float& dis, int& 
     if(num == -1) {
         return;
     }
-    using namespace std;
     if(boxes[num].Inside(p) == false) {
         float ndis = boxes[num].InterSquaredNormed(p, d);
         if(ndis >= dis) {
@@ -118,7 +116,6 @@ void AccelKDtree::Query(const Vec3& p, const Vec3& d, int num, float& dis, int& 
 }
 
 void AccelKDtree::Init(std::vector<Geometry*>& shapes_g) {
-    using namespace std;
     int n = shapes_g.size();
     ls = new int[n];
     rs = new int[n];
@@ -127,17 +124,16 @@ void AccelKDtree::Init(std::vector<Geometry*>& shapes_g) {
         ls[i] = rs[i] = -1;
         boxes[i] = shapes_g[i] -> Bound();
         shapes.push_back(shapes_g[i]);
-        aux.push_back(make_pair(shapes_g[i], i));
+        aux.push_back(std::make_pair(shapes_g[i], i));
     }
     Build(0, n, root);
     aux.clear();
 }
 
 std::pair<int, std::pair<Vec2, Vec3>> AccelKDtree::Inter(Vec3 p, Vec3 d) {
-    using namespace std;
     d.Normalize();
-    float dis = 1e99;
-    pair<Vec2, Vec3> res;
+    float dis = 1e30;
+    std::pair<Vec2, Vec3> res;
     int id = -1;
     Query(p, d, root, dis, id, res);
     return make_pair(id, res);

@@ -12,7 +12,6 @@ void AccelNaive::Init(std::vector<Geometry*>& shapes_g) {
 }
 
 std::pair<int, std::pair<Vec2, Vec3>> AccelNaive::Inter(Vec3 p, Vec3 d) {
-    using namespace std;
     int id = -1;
     float dis;
     Vec2 uv;
@@ -30,5 +29,5 @@ std::pair<int, std::pair<Vec2, Vec3>> AccelNaive::Inter(Vec3 p, Vec3 d) {
             }
         }
     }
-    return make_pair(id, make_pair(uv, inter));
+    return std::make_pair(id, std::make_pair(uv, inter));
 }

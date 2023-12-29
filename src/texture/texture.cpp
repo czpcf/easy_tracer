@@ -43,15 +43,14 @@ void Texture::Init(unsigned int width_t, unsigned int height_t, float* data_t, s
 }
 
 void Texture::Flip(bool horizontal, bool vertical) {
-    using namespace std;
     if(horizontal) {
         for(int y = 0; y < height; ++y) {
             for(int x = 0; x < width / 2; ++x) {
                 int nx = width - x - 1;
-                swap(data[(width * y + x) * 4 + 0], data[(width * y + nx) * 4 + 0]);
-                swap(data[(width * y + x) * 4 + 1], data[(width * y + nx) * 4 + 1]);
-                swap(data[(width * y + x) * 4 + 2], data[(width * y + nx) * 4 + 2]);
-                swap(data[(width * y + x) * 4 + 3], data[(width * y + nx) * 4 + 3]);
+                std::swap(data[(width * y + x) * 4 + 0], data[(width * y + nx) * 4 + 0]);
+                std::swap(data[(width * y + x) * 4 + 1], data[(width * y + nx) * 4 + 1]);
+                std::swap(data[(width * y + x) * 4 + 2], data[(width * y + nx) * 4 + 2]);
+                std::swap(data[(width * y + x) * 4 + 3], data[(width * y + nx) * 4 + 3]);
             }
         }
     }
@@ -59,10 +58,10 @@ void Texture::Flip(bool horizontal, bool vertical) {
         for(int x = 0; x < width; ++x) {
             for(int y = 0; y < height / 2; ++y) {
                 int ny = height - y - 1;
-                swap(data[(width * y + x) * 4 + 0], data[(width * ny + x) * 4 + 0]);
-                swap(data[(width * y + x) * 4 + 1], data[(width * ny + x) * 4 + 1]);
-                swap(data[(width * y + x) * 4 + 2], data[(width * ny + x) * 4 + 2]);
-                swap(data[(width * y + x) * 4 + 3], data[(width * ny + x) * 4 + 3]);
+                std::swap(data[(width * y + x) * 4 + 0], data[(width * ny + x) * 4 + 0]);
+                std::swap(data[(width * y + x) * 4 + 1], data[(width * ny + x) * 4 + 1]);
+                std::swap(data[(width * y + x) * 4 + 2], data[(width * ny + x) * 4 + 2]);
+                std::swap(data[(width * y + x) * 4 + 3], data[(width * ny + x) * 4 + 3]);
             }
         }
     }
@@ -81,9 +80,8 @@ Vec4 Texture::Get(unsigned int x, unsigned int y) {
     if(simple) {
         return simple_c;
     }
-    using namespace std;
-    x = min(width - 1, x);
-    y = min(height - 1, y);
+    x = std::min(width - 1, x);
+    y = std::min(height - 1, y);
     int bias = (y * width + x) * 4;
     return Vec4(data[bias + 0], data[bias + 1], data[bias + 2], data[bias + 3]);
 }
@@ -92,9 +90,8 @@ Vec4 Texture::Get(Vec2 uv) {
     if(simple) {
         return simple_c;
     }
-    using namespace std;
-    unsigned int x = min(width - 1, (unsigned int)(uv.x * width));
-    unsigned int y = min(height - 1, (unsigned int)(uv.y * height));
+    unsigned int x = std::min(width - 1, (unsigned int)(uv.x * width));
+    unsigned int y = std::min(height - 1, (unsigned int)(uv.y * height));
     int bias = (y * width + x) * 4;
     return Vec4(data[bias + 0], data[bias + 1], data[bias + 2], data[bias + 3]);
 }

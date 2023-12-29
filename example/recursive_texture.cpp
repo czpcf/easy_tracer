@@ -4,9 +4,12 @@
 #include <random>
 #include "../src/tensor/vec3.h"
 #include "../src/geometry/triangle.h"
+#include "../src/geometry/sphere.h"
 #include "../src/texture/texture.h"
 #include "../src/accel/accel_naive.h"
 #include "../src/accel/accel_kdtree.h"
+#include "../src/camera/camera_pinhole.h"
+#include "../src/const.h"
 using namespace std;
 const int width = 32;
 const int height = 32;
@@ -17,7 +20,9 @@ float img[img_width * img_height * 4];
 Texture texture;
 AccelNaive accel_naive;
 AccelKDtree accel_kdtree;
+CameraPinhole camera;
 vector<Triangle> triangles;
+vector<Sphere> spheres;
 vector<Geometry*> shapes;
 mt19937 RD(123);
 float R() {
@@ -68,11 +73,23 @@ void Init() {
     Vec2 uv1(0, 0), uv2(512, 0), uv3(512, 512), uv4(0, 512);
     triangles.push_back(Triangle(A, B, C, uv1, uv2, uv3));
     triangles.push_back(Triangle(A, C, D, uv1, uv3, uv4));
+    spheres.push_back(Sphere(Vec3(0.0f, 0.0f, 1.0f), Vec3(cos(PI / 6), sin(PI / 6), 0.0f), Vec3(-50.0f, 0.0f, 100.0f), 50.0f));
+    spheres.push_back(Sphere(Vec3(0.0f, 0.0f, 1.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(100.0f, 200.0f, 120.0f), 50.0f));
     for(int i = 0; i < triangles.size(); ++i) {
         shapes.push_back(&triangles[i]);
     }
+    for(int i = 0; i < spheres.size(); ++i) {
+        shapes.push_back(&spheres[i]);
+    }
     accel_naive.Init(shapes);
     accel_kdtree.Init(shapes);
+    float dep_t = 1.0f;
+    float width_t = 1.0f;
+    float height_t = 1.0f;
+    Vec3 z_axis(0.0f, 0.0f, 1.0f);
+    Vec3 x_axis(1.0f, 0.0f, 0.0f);
+    Vec3 origin(0.0f, -256.0f, 3.0f);
+    camera.Init(z_axis, x_axis, origin, width_t, height_t, dep_t);
 }
 
 auto start_t = chrono::high_resolution_clock::now();
@@ -92,17 +109,19 @@ int main() {
     Vec3 p(0, -256, 3);
     float dx = 1.0f / img_width;
     float dy = 1.0f / img_height;
-    float f = 1.0f;
     Begin();
     for(int x = 0; x < img_width; ++x) {
         for(int y = 0; y < img_height; ++y) {
-            Vec3 d(dx * (x - img_width / 2), f, dy * (y - img_height / 2));
-            d.Normalize();
-            auto res = accel_kdtree.Inter(p, d);
-//            auto res2 = accel_naive.Inter(p, d);
+            auto ray = camera.CastRay(Vec2(-dx * (x - img_width / 2) * 2, -dy * (y - img_height / 2) * 2));
+            Vec3 p = ray.first, d = ray.second;
+//            auto res = accel_kdtree.Inter(p, d);
+            auto res = accel_naive.Inter(p, d);
             int id = res.first;
             if(id != -1) {
                 Vec2 uv = shapes[id]->GetUVInter(res.second.first);
+                    if(id >= 2) {
+                        uv = uv * 16.0f;
+                    }
                 Vec4 c = texture.GetRec(uv);
                 int bias = (y * img_width + x) * 4;
                 img[bias + 0] = c.x;
@@ -112,25 +131,26 @@ int main() {
         }
     }
     End("1spp");
-    WriteToPPM("recursive_texture.ppm");
+    WriteToPPM("recursive_texture_1spp.ppm");
     Begin();
     for(int x = 0; x < img_width; ++x) {
         for(int y = 0; y < img_height; ++y) {
             Vec4 sum;
-            for(int ddx = 0; ddx < 4; ++ddx) {
-                for(int ddy = 0; ddy < 4; ++ddy) {
-                    Vec3 d(dx * (-0.375f + 0.25f * ddx + (x - img_width / 2)), f, dy * (-0.375f + 0.25f * ddy + (y - img_height / 2)));
-                    d.Normalize();
-                    auto res = accel_kdtree.Inter(p, d);
-//                    auto res2 = accel_naive.Inter(p, d);
-                    int id = res.first;
-                    if(id != -1) {
-                        Vec2 uv = shapes[id]->GetUVInter(res.second.first);
-                        Vec4 c = texture.GetRec(uv);
-                        sum.x += c.x;
-                        sum.y += c.y;
-                        sum.z += c.z;
+            for(int i = 0; i < 16; ++i) {
+                auto ray = camera.CastRay(Vec2(-dx * (R() / 2 + x - img_width / 2) * 2, -dy * (R() / 2 + y - img_height / 2) * 2));
+                Vec3 p = ray.first, d = ray.second;
+//                auto res = accel_kdtree.Inter(p, d);
+                auto res = accel_naive.Inter(p, d);
+                int id = res.first;
+                if(id != -1) {
+                    Vec2 uv = shapes[id]->GetUVInter(res.second.first);
+                    if(id >= 2) {
+                        uv = uv * 16.0f;
                     }
+                    Vec4 c = texture.GetRec(uv);
+                    sum.x += c.x;
+                    sum.y += c.y;
+                    sum.z += c.z;
                 }
             }
             int bias = (y * img_width + x) * 4;
@@ -145,20 +165,21 @@ int main() {
     for(int x = 0; x < img_width; ++x) {
         for(int y = 0; y < img_height; ++y) {
             Vec4 sum;
-            for(int ddx = 0; ddx < 4; ++ddx) {
-                for(int ddy = 0; ddy < 4; ++ddy) {
-                    Vec3 d(dx * (-0.375f + 0.25f * ddx + (x - img_width / 2)), f, dy * (-0.375f + 0.25f * ddy + (y - img_height / 2)));
-                    d.Normalize();
-                    auto res = accel_kdtree.Inter(p, d);
-//                    auto res2 = accel_naive.Inter(p, d);
-                    int id = res.first;
-                    if(id != -1) {
-                        Vec2 uv = shapes[id]->GetUVInter(res.second.first);
-                        Vec4 c = texture.GetBilinearRec(uv);
-                        sum.x += c.x;
-                        sum.y += c.y;
-                        sum.z += c.z;
+            for(int i = 0; i < 16; ++i) {
+                auto ray = camera.CastRay(Vec2(-dx * (R() / 2 + x - img_width / 2) * 2, -dy * (R() / 2 + y - img_height / 2) * 2));
+                Vec3 p = ray.first, d = ray.second;
+//                auto res = accel_kdtree.Inter(p, d);
+                auto res = accel_naive.Inter(p, d);
+                int id = res.first;
+                if(id != -1) {
+                    Vec2 uv = shapes[id]->GetUVInter(res.second.first);
+                    if(id >= 2) {
+                        uv = uv * 16.0f;
                     }
+                    Vec4 c = texture.GetBilinearRec(uv);
+                    sum.x += c.x;
+                    sum.y += c.y;
+                    sum.z += c.z;
                 }
             }
             int bias = (y * img_width + x) * 4;
@@ -167,20 +188,23 @@ int main() {
             img[bias + 2] = sum.z / 16;
         }
     }
-    End("16spp with bilinear interpolation");
-    WriteToPPM("recursive_texture_16spp_bi.ppm");
+    End("16spp bilinear");
+    WriteToPPM("recursive_texture_16spp_bilinear.ppm");
     Begin();
     for(int x = 0; x < img_width; ++x) {
         for(int y = 0; y < img_height; ++y) {
             Vec4 sum;
-            for(int dd = 0; dd < 64; ++dd) {
-                Vec3 d(dx * (R() / 2 + (x - img_width / 2)), f, dy * (R() / 2 + (y - img_height / 2)));
-                d.Normalize();
-                auto res = accel_kdtree.Inter(p, d);
-//                auto res2 = accel_naive.Inter(p, d);
+            for(int i = 0; i < 64; ++i) {
+                auto ray = camera.CastRay(Vec2(-dx * (R() / 2 + x - img_width / 2) * 2, -dy * (R() / 2 + y - img_height / 2) * 2));
+                Vec3 p = ray.first, d = ray.second;
+//                auto res = accel_kdtree.Inter(p, d);
+                auto res = accel_naive.Inter(p, d);
                 int id = res.first;
                 if(id != -1) {
                     Vec2 uv = shapes[id]->GetUVInter(res.second.first);
+                    if(id >= 2) {
+                        uv = uv * 16.0f;
+                    }
                     Vec4 c = texture.GetBilinearRec(uv);
                     sum.x += c.x;
                     sum.y += c.y;
@@ -193,7 +217,7 @@ int main() {
             img[bias + 2] = sum.z / 64;
         }
     }
-    End("64spp with bilinear interpolation");
+    End("64spp");
     WriteToPPM("recursive_texture_64spp_bilinear.ppm");
     return 0;
 }

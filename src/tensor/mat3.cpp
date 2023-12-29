@@ -35,6 +35,21 @@ Mat3::Mat3(float matrix_a[3][3], float array_b[3]) {
     }
 }
 
+Mat3::Mat3(Vec3 p) {
+    a[0] = 1;
+    a[1] = 0;
+    a[2] = 0;
+    a[3] = 0;
+    a[4] = 1;
+    a[5] = 0;
+    a[6] = 0;
+    a[7] = 0;
+    a[8] = 1;
+    b[0] = p.x;
+    b[1] = p.y;
+    b[2] = p.z;
+}
+
 Mat3 Mat3::operator*(const Mat3&g) {
     Mat3 res;
     /// generate these code via
@@ -88,20 +103,19 @@ Mat3 Mat3::Trans(const Vec3&a) {
 }
 
 /// counter-clockwise 
-Mat3 Mat3::Rot(Vec3 n, float theta) {
-    Mat3 res;
+Mat3::Mat3(Vec3 n, float theta) {
     /// citation: https://en.wikipedia.org/wiki/Rotation_matrix
     n.Normalize(); // may be faster?
-    res.a[0] = cos(theta) + n.x * n.x * (1.0 - cos(theta));
-    res.a[1] = n.x * n.y * (1.0 - cos(theta)) - n.z * sin(theta);
-    res.a[2] = n.x * n.z * (1.0 - cos(theta)) + n.y * sin(theta);
-    res.a[3] = n.y * n.x * (1.0 - cos(theta)) + n.z * sin(theta);
-    res.a[4] = cos(theta) + n.y * n.y * (1.0 - cos(theta));
-    res.a[5] = n.y * n.z * (1.0 - cos(theta)) - n.x * sin(theta);
-    res.a[6] = n.z * n.x * (1.0 - cos(theta)) - n.y * sin(theta);
-    res.a[7] = n.z * n.y * (1.0 - cos(theta)) + n.x * sin(theta);
-    res.a[8] = cos(theta) + n.z * n.z * (1.0 - cos(theta));
-    return res;
+    a[0] = cos(theta) + n.x * n.x * (1.0 - cos(theta));
+    a[1] = n.x * n.y * (1.0 - cos(theta)) - n.z * sin(theta);
+    a[2] = n.x * n.z * (1.0 - cos(theta)) + n.y * sin(theta);
+    a[3] = n.y * n.x * (1.0 - cos(theta)) + n.z * sin(theta);
+    a[4] = cos(theta) + n.y * n.y * (1.0 - cos(theta));
+    a[5] = n.y * n.z * (1.0 - cos(theta)) - n.x * sin(theta);
+    a[6] = n.z * n.x * (1.0 - cos(theta)) - n.y * sin(theta);
+    a[7] = n.z * n.y * (1.0 - cos(theta)) + n.x * sin(theta);
+    a[8] = cos(theta) + n.z * n.z * (1.0 - cos(theta));
+    b[0] = b[1] = b[2] = 0.0f;
 }
 
 Vec3 Mat3::Map(const Vec3&a) {
@@ -123,4 +137,18 @@ float Mat3::Det() {
     return a[0] * a[4] * a[8] - a[0] * a[5] * a[7] +
            a[1] * a[5] * a[6] - a[1] * a[3] * a[8] +
            a[2] * a[3] * a[7] - a[2] * a[4] * a[6];
+}
+
+Mat3 TransZXP(Vec3 z, Vec3 x, Vec3 p) {
+    float theta = Vec3(1.0f, 0.0f, 0.0f).Angle(x);
+    Vec3 n = CrossSafe(Vec3(1.0f, 0.0f, 0.0f), x).Norm(); // order is important
+    Mat3 T1(n, theta);
+    
+    Vec3 nz = Vec3(0.0f, 0.0f, 1.0f);
+    nz = T1.Map(nz); // be careful
+    theta = nz.Angle(z);
+    n = CrossSafe(nz, z);
+    Mat3 T2(n, theta);
+
+    return Mat3(p) * T2 * T1;
 }

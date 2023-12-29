@@ -41,14 +41,13 @@ Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec2 uv_1, Vec2 uv_2, 
 }
 
 std::pair<bool, std::pair<Vec2, Vec3>> Triangle::Inter(Vec3 p, Vec3 d) {
-    using namespace std;
     float t = d.Dot(norm);
-    if(abs(t) < EPS) {
-        return make_pair(false, make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
+    if(std::abs(t) < EPS) {
+        return std::make_pair(false, std::make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
     }
     t = ((p1 - p).Dot(norm)) / t;
     if(t < 0) {
-        return make_pair(false, make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
+        return std::make_pair(false, std::make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
     }
     Vec3 inter = p + d * t;
     float x = inter.x, y = inter.y, z = inter.z;
@@ -58,14 +57,14 @@ std::pair<bool, std::pair<Vec2, Vec3>> Triangle::Inter(Vec3 p, Vec3 d) {
     float dx12 = x2 - x1, dy12 = y2 - y1;
     float dx13 = x3 - x1, dy13 = y3 - y1;
     // if in x-z plane or y-z plane
-    if(abs(dx12 * dy13 - dx13 * dy12) < EPS) {
+    if(std::abs(dx12 * dy13 - dx13 * dy12) < EPS) {
         float z1 = p1.z;
         float z2 = p2.z;
         float z3 = p3.z;
         float dz12 = z2 - z1;
         float dz13 = z3 - z1;
         // if in y-z plane
-        if(abs(dx12 * dz13 - dx13 * dz12) < EPS) {
+        if(std::abs(dx12 * dz13 - dx13 * dz12) < EPS) {
             float s1 = (y1 - y) * (z2 - z) - (y2 - y) * (z1 - z);
             float s2 = (y2 - y) * (z3 - z) - (y3 - y) * (z2 - z);
             float s3 = (y3 - y) * (z1 - z) - (y1 - y) * (z3 - z);
@@ -74,9 +73,9 @@ std::pair<bool, std::pair<Vec2, Vec3>> Triangle::Inter(Vec3 p, Vec3 d) {
                 float t1 = s1 / sum;
                 float t3 = s3 / sum;
                 // think: why?
-                return make_pair(true, make_pair(Vec2(t1, t3),  inter));
+                return std::make_pair(true, std::make_pair(Vec2(t1, t3),  inter));
             }
-            return make_pair(false, make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
+            return std::make_pair(false, std::make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
         }
         float s1 = (x1 - x) * (z2 - z) - (x2 - x) * (z1 - z);
         float s2 = (x2 - x) * (z3 - z) - (x3 - x) * (z2 - z);
@@ -85,9 +84,9 @@ std::pair<bool, std::pair<Vec2, Vec3>> Triangle::Inter(Vec3 p, Vec3 d) {
             float sum = s1 + s2 + s3;
             float t1 = s1 / sum;
             float t3 = s3 / sum;
-            return make_pair(true, make_pair(Vec2(t1, t3),  inter));
+            return std::make_pair(true, std::make_pair(Vec2(t1, t3),  inter));
         }
-        return make_pair(false, make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
+        return std::make_pair(false, std::make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
     }
     float s1 = (x1 - x) * (y2 - y) - (x2 - x) * (y1 - y);
     float s2 = (x2 - x) * (y3 - y) - (x3 - x) * (y2 - y);
@@ -96,9 +95,9 @@ std::pair<bool, std::pair<Vec2, Vec3>> Triangle::Inter(Vec3 p, Vec3 d) {
         float sum = s1 + s2 + s3;
         float t1 = s1 / sum;
         float t3 = s3 / sum;
-        return make_pair(true, make_pair(Vec2(t1, t3),  inter));
+        return std::make_pair(true, std::make_pair(Vec2(t1, t3),  inter));
     }
-    return make_pair(false, make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
+    return std::make_pair(false, std::make_pair(Vec2(0, 0), Vec3(0, 0, 0)));
 }
 
 Vec3 Triangle::GetNorm() {
@@ -130,12 +129,11 @@ void Triangle::Trans(Mat3&T) {
 }
 
 void Triangle::Debug() {
-    using namespace std;
-    cerr << "Debug Triangle: ";
-    cerr << '(' << p1.x << ',' << p1.y << ',' << p1.z << ')';
-    cerr << '(' << p2.x << ',' << p2.y << ',' << p2.z << ')';
-    cerr << '(' << p3.x << ',' << p3.y << ',' << p3.z << ')' << endl;
-    cerr << "          Norm: " << norm.x << ' ' << norm.y << ' ' << norm.z << endl;
+    std::cerr << "Debug Triangle: ";
+    std::cerr << '(' << p1.x << ',' << p1.y << ',' << p1.z << ')';
+    std::cerr << '(' << p2.x << ',' << p2.y << ',' << p2.z << ')';
+    std::cerr << '(' << p3.x << ',' << p3.y << ',' << p3.z << ')' << std::endl;
+    std::cerr << "          Norm: " << norm.x << ' ' << norm.y << ' ' << norm.z << std::endl;
 }
 
 Box Triangle::Bound() {

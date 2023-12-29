@@ -50,5 +50,18 @@ public:
 
     /// @brief rotate by b with theta radians, counter-clockwise
     Vec3 Rotate(const Vec3&b, float theta);
+
+    /// @brief return (|x|,|y|,|z|)
+    Vec3 Abs();
+
+    /// @brief return max(x,y,z)
+    float Max();
+
+    /// @brief return min(x,y,z)
+    float Min();
 };
+
+/// @brief return a x b if a and b is not on a line,
+/// otherwise return c that <a,c> = 0
+Vec3 CrossSafe(Vec3 a, Vec3 b);
 #endif
