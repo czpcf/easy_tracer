@@ -5,8 +5,6 @@
 /// 2. Trans(Mat3& T): apply the transform to change the position,
 ///    direction, ... of the geometry
 /// 3. Bound(): the bounding box of the geometry
-/// 4. GetUVInter(Vec2 local): return uv mapping via local coordinate
-/// 5. GetNormInter(Vec2 local): return interpolated normal via local coordinate
 /// optional:
 /// 1. Debug: just to print some debug information, it can be empty
 #include <utility>
@@ -27,7 +25,5 @@ public:
     virtual void Trans(Mat3& T) = 0;
     virtual void Debug() = 0;
     virtual Box Bound() = 0;
-    virtual Vec2 GetUVInter(Vec2 local) = 0;
-    virtual Vec3 GetNormInter(Vec2 local) = 0;
 };
 #endif

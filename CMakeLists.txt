@@ -49,3 +49,6 @@ target_link_libraries(texture_test PRIVATE easy_tracer_lib)
 
 add_executable(recursive_texture example/recursive_texture.cpp)
 target_link_libraries(recursive_texture PRIVATE easy_tracer_lib)
+
+add_executable(cornellbox example/cornellbox.cpp)
+target_link_libraries(cornellbox PRIVATE easy_tracer_lib)

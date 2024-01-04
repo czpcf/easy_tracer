@@ -21,6 +21,8 @@ public:
     ~CameraPinhole();
     CameraPinhole(Vec3 z_axis, Vec3 x_axis, Vec3 origin, float width_t, float height_t, float dep_t);
     void Init(Vec3 z_axis, Vec3 x_axis, Vec3 origin, float width_t, float height_t, float dep_t);
+    /// @brief return the ray given the coordinate on the screen [-1, 1]x[-1, 1],
+    /// return (origin, direction), direction is normalized
     std::pair<Vec3, Vec3> CastRay(Vec2 uv);
 };
 #endif

@@ -13,30 +13,6 @@ Triangle::~Triangle() {
 Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3) {
     /// counter-clockwise: p1 -> p2 -> p3
     p1 = point1, p2 = point2, p3 = point3;
-    uv1 = uv2 = uv3 = Vec2(0, 0);
-    norm1 = norm2 = norm3 = norm = ((p2 - p1).Cross(p3 - p1)).Norm();
-}
-
-Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec2 uv_1, Vec2 uv_2, Vec2 uv_3) {
-    /// counter-clockwise: p1 -> p2 -> p3
-    p1 = point1, p2 = point2, p3 = point3;
-    uv1 = uv_1, uv2 = uv_2, uv3 = uv_3;
-    norm1 = norm2 = norm3 = norm = ((p2 - p1).Cross(p3 - p1)).Norm();
-}
-
-Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec3 norm_1, Vec3 norm_2, Vec3 norm_3) {
-    /// counter-clockwise: p1 -> p2 -> p3
-    p1 = point1, p2 = point2, p3 = point3;
-    uv1 = uv2 = uv3 = Vec2(0, 0);
-    norm1 = norm_1.Norm(), norm2 = norm_2.Norm(), norm3 = norm_3.Norm();
-    norm = ((p2 - p1).Cross(p3 - p1)).Norm();
-}
-
-Triangle::Triangle(Vec3 point1, Vec3 point2, Vec3 point3, Vec2 uv_1, Vec2 uv_2, Vec2 uv_3, Vec3 norm_1, Vec3 norm_2, Vec3 norm_3) {
-    /// counter-clockwise: p1 -> p2 -> p3
-    p1 = point1, p2 = point2, p3 = point3;
-    uv1 = uv_1, uv2 = uv_2, uv3 = uv_3;
-    norm1 = norm_1.Norm(), norm2 = norm_2.Norm(), norm3 = norm_3.Norm();
     norm = ((p2 - p1).Cross(p3 - p1)).Norm();
 }
 
@@ -68,7 +44,7 @@ std::pair<bool, std::pair<Vec2, Vec3>> Triangle::Inter(Vec3 p, Vec3 d) {
             float s1 = (y1 - y) * (z2 - z) - (y2 - y) * (z1 - z);
             float s2 = (y2 - y) * (z3 - z) - (y3 - y) * (z2 - z);
             float s3 = (y3 - y) * (z1 - z) - (y1 - y) * (z3 - z);
-            if((s1 <= 0 && s2 <= 0 && s3 <=0) || (s1 >= 0 && s2 >= 0 && s3 >= 0)) {
+            if((s1 < 0 && s2 < 0 && s3 < 0) || (s1 > 0 && s2 > 0 && s3 > 0)) { // don't equal 0, in case very far away
                 float sum = s1 + s2 + s3;
                 float t1 = s1 / sum;
                 float t3 = s3 / sum;
@@ -80,7 +56,7 @@ std::pair<bool, std::pair<Vec2, Vec3>> Triangle::Inter(Vec3 p, Vec3 d) {
         float s1 = (x1 - x) * (z2 - z) - (x2 - x) * (z1 - z);
         float s2 = (x2 - x) * (z3 - z) - (x3 - x) * (z2 - z);
         float s3 = (x3 - x) * (z1 - z) - (x1 - x) * (z3 - z);
-        if((s1 <= 0 && s2 <= 0 && s3 <=0) || (s1 >= 0 && s2 >= 0 && s3 >= 0)) {
+        if((s1 < 0 && s2 < 0 && s3 < 0) || (s1 > 0 && s2 > 0 && s3 > 0)) {
             float sum = s1 + s2 + s3;
             float t1 = s1 / sum;
             float t3 = s3 / sum;
@@ -91,7 +67,7 @@ std::pair<bool, std::pair<Vec2, Vec3>> Triangle::Inter(Vec3 p, Vec3 d) {
     float s1 = (x1 - x) * (y2 - y) - (x2 - x) * (y1 - y);
     float s2 = (x2 - x) * (y3 - y) - (x3 - x) * (y2 - y);
     float s3 = (x3 - x) * (y1 - y) - (x1 - x) * (y3 - y);
-    if((s1 <= 0 && s2 <= 0 && s3 <=0) || (s1 >= 0 && s2 >= 0 && s3 >= 0)) {
+    if((s1 < 0 && s2 < 0 && s3 < 0) || (s1 > 0 && s2 > 0 && s3 > 0)) {
         float sum = s1 + s2 + s3;
         float t1 = s1 / sum;
         float t3 = s3 / sum;
@@ -104,27 +80,24 @@ Vec3 Triangle::GetNorm() {
     return norm;
 }
 
-Vec2 Triangle::GetUVInter(Vec2 local) {
+Vec2 Triangle::Interpolate(Vec2 local, Vec2 uv1, Vec2 uv2, Vec2 uv3) {
     float t1 = local.x;
     float t3 = local.y;
     float t2 = 1.0f - t1 - t3;
     return uv3 * t1 + uv1 * t2 + uv2 * t3;
 }
 
-Vec3 Triangle::GetNormInter(Vec2 local) {
+Vec3 Triangle::Interpolate(Vec2 local, Vec3 p1, Vec3 p2, Vec3 p3) {
     float t1 = local.x;
     float t3 = local.y;
     float t2 = 1.0f - t1 - t3;
-    return norm3 * t1 + norm1 * t2 + norm2 * t3;
+    return p1 * t1 + p2 * t2 + p3 * t3;
 }
 
 void Triangle::Trans(Mat3&T) {
     p1 = T.Map(p1);
     p2 = T.Map(p2);
     p3 = T.Map(p3);
-    norm1 = T.MapA(norm1); // be careful
-    norm2 = T.MapA(norm2);
-    norm3 = T.MapA(norm3);
     norm = ((p2 - p1).Cross(p3 - p1)).Norm();
 }
 

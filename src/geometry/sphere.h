@@ -28,10 +28,10 @@ public:
     std::pair<bool, std::pair<Vec2, Vec3>> Inter(Vec3 p, Vec3 d);
     
     /// @brief return the interpolation uv of the sphere
-    Vec2 GetUVInter(Vec2 local);
+    Vec2 GetUV(Vec2 local);
 
     /// @brief return the interpolation norm of the sphere
-    Vec3 GetNormInter(Vec2 local);
+    Vec3 GetNorm(Vec2 local);
 
     /// @brief apply the transform to the sphere
     void Trans(Mat3& T);

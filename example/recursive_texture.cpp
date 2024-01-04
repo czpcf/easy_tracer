@@ -18,12 +18,13 @@ const int img_height = 1024;
 float data_t[width * height * 4];
 float img[img_width * img_height * 4];
 Texture texture;
-AccelNaive accel_naive;
+AccelNaive accel;
 AccelKDtree accel_kdtree;
 CameraPinhole camera;
 vector<Triangle> triangles;
 vector<Sphere> spheres;
 vector<Geometry*> shapes;
+vector<Vec2> uvs;
 mt19937 RD(123);
 float R() {
     return (float)((RD() % 2147483648) - 1073741824) / 1073741824;
@@ -71,8 +72,17 @@ void Init() {
     texture.Init(width, height, data_t, "texture");
     Vec3 A(-256, -256, 0), B(256, -256, 0), C(256, 256, 0), D(-256, 256, 0);
     Vec2 uv1(0, 0), uv2(512, 0), uv3(512, 512), uv4(0, 512);
-    triangles.push_back(Triangle(A, B, C, uv1, uv2, uv3));
-    triangles.push_back(Triangle(A, C, D, uv1, uv3, uv4));
+
+    triangles.push_back(Triangle(A, B, C));
+    uvs.push_back(uv1);
+    uvs.push_back(uv2);
+    uvs.push_back(uv3);
+
+    triangles.push_back(Triangle(A, C, D));
+    uvs.push_back(uv1);
+    uvs.push_back(uv2);
+    uvs.push_back(uv3);
+
     spheres.push_back(Sphere(Vec3(0.0f, 0.0f, 1.0f), Vec3(cos(PI / 6), sin(PI / 6), 0.0f), Vec3(-50.0f, 0.0f, 100.0f), 50.0f));
     spheres.push_back(Sphere(Vec3(0.0f, 0.0f, 1.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(100.0f, 200.0f, 120.0f), 50.0f));
     for(int i = 0; i < triangles.size(); ++i) {
@@ -81,7 +91,7 @@ void Init() {
     for(int i = 0; i < spheres.size(); ++i) {
         shapes.push_back(&spheres[i]);
     }
-    accel_naive.Init(shapes);
+    accel.Init(shapes);
     accel_kdtree.Init(shapes);
     float dep_t = 1.0f;
     float width_t = 1.0f;
@@ -115,13 +125,16 @@ int main() {
             auto ray = camera.CastRay(Vec2(-dx * (x - img_width / 2) * 2, -dy * (y - img_height / 2) * 2));
             Vec3 p = ray.first, d = ray.second;
 //            auto res = accel_kdtree.Inter(p, d);
-            auto res = accel_naive.Inter(p, d);
+            auto res = accel.Inter(p, d);
             int id = res.first;
             if(id != -1) {
-                Vec2 uv = shapes[id]->GetUVInter(res.second.first);
-                    if(id >= 2) {
-                        uv = uv * 16.0f;
-                    }
+                Vec2 uv;
+                if(id < triangles.size()) {
+                    uv = triangles[id].Interpolate(res.second.first, uvs[id * 3 + 0], uvs[id * 3 + 1], uvs[id * 3 + 2]);
+                }
+                else {
+                    uv = spheres[id - triangles.size()].GetUV(res.second.first) * 16.0f;
+                }
                 Vec4 c = texture.GetRec(uv);
                 int bias = (y * img_width + x) * 4;
                 img[bias + 0] = c.x;
@@ -140,12 +153,15 @@ int main() {
                 auto ray = camera.CastRay(Vec2(-dx * (R() / 2 + x - img_width / 2) * 2, -dy * (R() / 2 + y - img_height / 2) * 2));
                 Vec3 p = ray.first, d = ray.second;
 //                auto res = accel_kdtree.Inter(p, d);
-                auto res = accel_naive.Inter(p, d);
+                auto res = accel.Inter(p, d);
                 int id = res.first;
                 if(id != -1) {
-                    Vec2 uv = shapes[id]->GetUVInter(res.second.first);
-                    if(id >= 2) {
-                        uv = uv * 16.0f;
+                    Vec2 uv;
+                    if(id < triangles.size()) {
+                        uv = triangles[id].Interpolate(res.second.first, uvs[id * 3 + 0], uvs[id * 3 + 1], uvs[id * 3 + 2]);
+                    }
+                    else {
+                        uv = spheres[id - triangles.size()].GetUV(res.second.first) * 16.0f;
                     }
                     Vec4 c = texture.GetRec(uv);
                     sum.x += c.x;
@@ -169,12 +185,15 @@ int main() {
                 auto ray = camera.CastRay(Vec2(-dx * (R() / 2 + x - img_width / 2) * 2, -dy * (R() / 2 + y - img_height / 2) * 2));
                 Vec3 p = ray.first, d = ray.second;
 //                auto res = accel_kdtree.Inter(p, d);
-                auto res = accel_naive.Inter(p, d);
+                auto res = accel.Inter(p, d);
                 int id = res.first;
                 if(id != -1) {
-                    Vec2 uv = shapes[id]->GetUVInter(res.second.first);
-                    if(id >= 2) {
-                        uv = uv * 16.0f;
+                    Vec2 uv;
+                    if(id < triangles.size()) {
+                        uv = triangles[id].Interpolate(res.second.first, uvs[id * 3 + 0], uvs[id * 3 + 1], uvs[id * 3 + 2]);
+                    }
+                    else {
+                        uv = spheres[id - triangles.size()].GetUV(res.second.first) * 16.0f;
                     }
                     Vec4 c = texture.GetBilinearRec(uv);
                     sum.x += c.x;
@@ -198,12 +217,15 @@ int main() {
                 auto ray = camera.CastRay(Vec2(-dx * (R() / 2 + x - img_width / 2) * 2, -dy * (R() / 2 + y - img_height / 2) * 2));
                 Vec3 p = ray.first, d = ray.second;
 //                auto res = accel_kdtree.Inter(p, d);
-                auto res = accel_naive.Inter(p, d);
+                auto res = accel.Inter(p, d);
                 int id = res.first;
                 if(id != -1) {
-                    Vec2 uv = shapes[id]->GetUVInter(res.second.first);
-                    if(id >= 2) {
-                        uv = uv * 16.0f;
+                    Vec2 uv;
+                    if(id < triangles.size()) {
+                        uv = triangles[id].Interpolate(res.second.first, uvs[id * 3 + 0], uvs[id * 3 + 1], uvs[id * 3 + 2]);
+                    }
+                    else {
+                        uv = spheres[id - triangles.size()].GetUV(res.second.first) * 16.0f;
                     }
                     Vec4 c = texture.GetBilinearRec(uv);
                     sum.x += c.x;

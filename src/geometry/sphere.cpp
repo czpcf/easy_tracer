@@ -58,11 +58,11 @@ std::pair<bool, std::pair<Vec2, Vec3>> Sphere::Inter(Vec3 p, Vec3 d) {
     return std::make_pair(true, std::make_pair(Vec2(theta, PI * 2 - ay), inter));
 }
 
-Vec2 Sphere::GetUVInter(Vec2 local) {
+Vec2 Sphere::GetUV(Vec2 local) {
     return Vec2(local.x / PI, local.y / PI / 2);
 }
 
-Vec3 Sphere::GetNormInter(Vec2 local) {
+Vec3 Sphere::GetNorm(Vec2 local) {
     float t1 = local.x;
     float t3 = local.y;
     Vec3 p = x.Rotate(z, -t1);

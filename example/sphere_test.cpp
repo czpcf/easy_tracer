@@ -11,8 +11,8 @@ int main() {
     Vec3 inter = res.second.second;
     cout << "local coordinate: " << local.x << ' ' << local.y << endl;
     cout << "intersection: " << inter.x << ' ' << inter.y << ' ' << inter.z << endl;
-    Vec2 uv = O.GetUVInter(local);
-    Vec3 norm = O.GetNormInter(local);
+    Vec2 uv = O.GetUV(local);
+    Vec3 norm = O.GetNorm(local);
     cout << "uv coordinate: " << uv.x << ' ' << uv.y << endl;
     cout << "normal: " << norm.x << ' ' << norm.y << ' ' << norm.z << endl;
     return 0;
